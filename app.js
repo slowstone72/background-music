@@ -70,7 +70,7 @@ function newInstance (channel, server) {
 	var bot = {
 		client: new mppClient(server),
 		chat: {
-			send: function(msg) {
+			send: msg => {
 				msg.match(/.{0,511}/g).forEach(function(x, i) {
 					if (x === '') return;
 					if (i !== 0) x = '' + x;
@@ -149,13 +149,13 @@ function newInstance (channel, server) {
 					}
 				} 
 			});
-			bot.client.on('participant added', (msg) => {
+			bot.client.on('participant added', msg => {
 				if (bot.client.channel.id === 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
 					sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
 					if (!Object.keys(userDB.data).includes(msg.id)) userDB.set(msg.id, {'in': false}); userDB.save();
 				}
 			});
-			bot.client.on('a', (msg) => {
+			bot.client.on('a', msg => {
 				if (!Object.keys(userDB.data).includes(msg.p._id) && msg.p._id !== bot.client.getOwnParticipant()._id) userDB.set(msg.p._id, {'in': false}); userDB.save();
 				if (msg.a.toLowerCase() === '/opt-in') {
 					if (!userDB.data[msg.p._id].in) {
@@ -182,7 +182,7 @@ function newInstance (channel, server) {
 		}
 	});
 
-	bot.temp.mainInt = setInterval(function() {
+	bot.temp.mainInt = setInterval(() => {
 		if (bot.client.channel) {
 			if (!bot.temp.playingMIDI) {
 				bot.temp.secondsSinceLastNote ++;
@@ -201,7 +201,7 @@ function newInstance (channel, server) {
 		}
 	}, 10000);
 
-	function conv (key) {
+	const conv = key => {
 		return MPPKeys[convKeys.indexOf(key)] || key;
 	}
 
@@ -225,9 +225,9 @@ function newInstance (channel, server) {
 		bot.fun.reset();
 	});
 
-	bot.fun.suffixOf=function(f){var n=f%10,r=f%100;return 1==n&&11!=r?f+'st':2==n&&12!=r?f+'nd':3==n&&13!=r?f+'rd':f+'th'};
-	bot.fun.getTimestamp=function(e){var t=e||new Date;return`${t.getHours()%12||12}:${t.getMinutes()} ${t.getHours()>=12?'PM':'AM'} on the ${bot.fun.suffixOf(t.getDate())} of ${months[t.getMonth()-1]} ${t.getYear()+1900} (UTC+${t.getTimezoneOffset()/60})`};
-	bot.fun.rando=function(r){return Array.isArray(r)||(r=Array.from(arguments)),r[Math.floor(Math.random()*r.length)]}; // from Fishing
+	bot.fun.suffixOf=(f) => {var n=f%10,r=f%100;return 1==n&&11!=r?f+'st':2==n&&12!=r?f+'nd':3==n&&13!=r?f+'rd':f+'th'};
+	bot.fun.getTimestamp=(e) => {var t=e||new Date;return`${t.getHours()%12||12}:${t.getMinutes()} ${t.getHours()>=12?'PM':'AM'} on the ${bot.fun.suffixOf(t.getDate())} of ${months[t.getMonth()-1]} ${t.getYear()+1900} (UTC+${t.getTimezoneOffset()/60})`};
+	bot.fun.rando=(r) => {return Array.isArray(r)||(r=Array.from(arguments)),r[Math.floor(Math.random()*r.length)]}; // from Fishing
 	bot.fun.reset = () => {
 		bot.temp.playingMIDI = false;
 		bot.temp.secondsSinceLastMIDI = 0;
@@ -237,7 +237,7 @@ function newInstance (channel, server) {
 		bot.temp.echoDelay = 10;
 		bot.temp.midiplayer.stop();
 	}
-	bot.fun.playMIDI = function () {
+	bot.fun.playMIDI = () => {
 		bot.fun.reset();
 		bot.temp.playingMIDI = true;
 		var files = [];

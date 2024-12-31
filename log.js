@@ -42,7 +42,7 @@ console.log(`${module_prefix} Running.`);
 module.exports = {
 	initializationdate: new Date(),
 	sessionlog: new Date(),
-	add: function(txt) {
+	add: txt => {
 		console.log(txt);
 		this.sessionlog += `\n${txt}`;
 	}
@@ -51,7 +51,7 @@ module.exports = {
 // Manage finishing up logging:
 var writing = false;
 
-function exitHandler(options, err) {
+const exitHandler = (options, err) => {
 	if (!writing) { // sometimes both of these exit events are fired, so this stops the following code from being triggered twice
 		writing = true;
 		module.exports.sessionlog += `\n!! PROCESS EXITING !!`;

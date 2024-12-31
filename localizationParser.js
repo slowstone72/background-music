@@ -43,8 +43,8 @@ const modulePrefix = '[LOCALIZATION_PARSER]';
 log.add(`${modulePrefix} Running.`);
 
 module.exports = {
-	parse: function (string_id) {
-		return new Promise(function(resolve, reject) {
+	parse: string_id => {
+		return new Promise((resolve, reject) => {
 			fs.exists(`./localizations/${config.default_localization}.json`, function(exists) {
 				if (exists) {
 					var localization = require(`./localizations/${config.default_localization}.json`);

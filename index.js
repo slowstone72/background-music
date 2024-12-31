@@ -1,7 +1,7 @@
 /*
 	"Background Music for Multiplayer Piano"
 	index.js - Launcher for handling config.json & launching app.js
-	2022.11.07
+	2022.11.07 - 2024.12.31
 
 	Callum Fisher <cf.fisher.bham@gmail.com>
 
@@ -81,7 +81,7 @@ const valid_dirs = [
 
 // Manage directories ++
 valid_dirs.forEach(dir => { // Check the directories which are in the valid directories list and create any missing ones:
-	fs.exists(`./${dir}`, function(exists) {
+	fs.exists(`./${dir}`, (exists) => {
 		if (!exists) {
 			fs.mkdir(`./${dir}`, function(err) {
 				if (err) {
