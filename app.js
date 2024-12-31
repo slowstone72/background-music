@@ -66,7 +66,9 @@ takenChannels = [];
 instanceCounter = 0;
 
 const newInstance = (channel, server) => {
+
 	instanceCounter++;
+
 	let bot = {
 		client: new mppClient(server),
 		chat: {
@@ -102,20 +104,26 @@ const newInstance = (channel, server) => {
 
 	bot.client.start();
 
-
-
 	bot.client.on('hi', () => {
+
 		if (!bot.temp.connectedOnce) {
+
 			bot.temp.connectedOnce = true;
+
 			log.add(`${modulePrefix} [${bot.temp.instance}] ${bot.fun.getTimestamp()}`);
 			log.add(`${modulePrefix} [${bot.temp.instance}] Connected to MPP server @ ${server}`);
 			log.add(`${modulePrefix} [${bot.temp.instance}] Starting in channel: ${bot.temp.desiredChannel}`);
+
 			bot.client.setChannel(bot.temp.desiredChannel);
+
 			// bot.client.sendArray([{ m: 'userset', set: { name: 'Background Music', color: '#8a91ff' }}]);
+
 			bot.temp.chatBufferInt = setInterval(() => {
 				if (bot.temp.chatBuffer) bot.client.sendArray([{m:'a', message: bot.temp.chatBuffer.shift() }]);
 			}, 3000);
+
 			bot.temp.cursorAnimInfo.xyControl = setInterval(() => {
+
 				if (bot.temp.doCursorAnimation) {
 					bot.temp.cursorAnimInfo.left ? bot.temp.cursorAnimInfo.x -= bot.temp.cursorAnimInfo.xIncrement : bot.temp.cursorAnimInfo.x += bot.temp.cursorAnimInfo.xIncrement;
 					if (bot.temp.cursorAnimInfo.x > 99) bot.temp.cursorAnimInfo.left = true;
@@ -124,81 +132,146 @@ const newInstance = (channel, server) => {
 					if (bot.temp.cursorAnimInfo.y > 99) bot.temp.cursorAnimInfo.down = true;
 					if (bot.temp.cursorAnimInfo.y < 0) bot.temp.cursorAnimInfo.down = false;
 				}
+
 			}, 50);
+
 			bot.temp.cursorAnimInfo.randomControl = setInterval(() => {
+
 				bot.temp.cursorAnimInfo.yIncrement = 0.6;
 				bot.temp.cursorAnimInfo.xIncrement = 0.6;
+				
 				setTimeout(() => {
 					bot.temp.cursorAnimInfo.yIncrement = 0.1;
 					bot.temp.cursorAnimInfo.xIncrement = 0.1;
 				}, 600);
+
 				if (Math.random() > 0.7) bot.temp.cursorAnimInfo.left = !bot.temp.cursorAnimInfo.left;
 				if (Math.random() > 0.7) bot.temp.cursorAnimInfo.down = !bot.temp.cursorAnimInfo.down;
+				
 			}, 5000);
+
 			bot.temp.cursorAnimInfo.sendControl = setInterval(() => {
 				if (bot.temp.doCursorAnimation) bot.client.sendArray([{m: 'm', x: bot.temp.cursorAnimInfo.x, y:  bot.temp.cursorAnimInfo.y}]);
 			}, 50);
-			bot.client.on('n', (msg) => {
+
+			bot.client.on('n', msg => {
+
 				if (msg.p.id !== bot.client.getOwnParticipant().id) {
+
 					bot.temp.secondsSinceLastNote = 0;
+
 					if (bot.temp.playingMIDI) {
-						bot.temp.midiInterruptionCount++;
-						if (bot.temp.midiInterruptionCount > 10) {
-							bot.fun.reset();
-						}
+
+						bot.temp.midiInterruptionCount ++;
+
+						if (bot.temp.midiInterruptionCount > 10) bot.fun.reset();
+
 					}
-				} 
-			});
-			bot.client.on('participant added', msg => {
-				if (bot.client.channel.id === 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
-					sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
-					if (!Object.keys(userDB.data).includes(msg.id)) userDB.set(msg.id, {'in': false}); userDB.save();
+
 				}
+
 			});
+
+			bot.client.on('participant added', msg => {
+
+				if (bot.client.channel.id === 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
+
+					sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
+					
+					if (!Object.keys(userDB.data).includes(msg.id)) {
+
+						userDB.set(msg.id, {
+							'in': false
+						});
+
+						userDB.save();
+
+					}
+
+				}
+
+			});
+
 			bot.client.on('a', msg => {
-				if (!Object.keys(userDB.data).includes(msg.p._id) && msg.p._id !== bot.client.getOwnParticipant()._id) userDB.set(msg.p._id, {'in': false}); userDB.save();
+
+				if (!Object.keys(userDB.data).includes(msg.p._id) && msg.p._id !== bot.client.getOwnParticipant()._id) {
+
+					userDB.set(msg.p._id, {
+						'in': false
+					});
+
+					userDB.save();
+
+				}
+
 				if (msg.a.toLowerCase() === '/opt-in') {
+
 					if (!userDB.data[msg.p._id].in) {
+
 						userDB.data[msg.p._id].in = true;
 						userDB.save();
 						sendChat('You\'ve opted in to background music in your channels. I\'ll visit you next time you hold the crown in a channel. See you around!');
+
 					} else {
+
 						sendChat('You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.');
+
 					}
+
 				}
+
 				if (msg.a.toLowerCase() === '/opt-out') {
+
 					if (userDB.data[msg.p._id].in) {
+
 						userDB.data[msg.p._id].in = false;
 						userDB.save();
 						sendChat('You\'ve opted out of background music in your channels. Thanks for trying it out!');
+
 					} else {
+
 						sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.');
+
 					}
+
 				}
-				if (msg.a.toLowerCase() === '/test') {
-					bot.fun.findChannel();
-				}
+
+				if (msg.a.toLowerCase() === '/test') bot.fun.findChannel();
+
 			});
+
 		}
+
 	});
 
 	bot.temp.mainInt = setInterval(() => {
+
 		if (bot.client.channel) {
+
 			if (!bot.temp.playingMIDI) {
+
 				bot.temp.secondsSinceLastNote ++;
 				if (bot.temp.secondsSinceLastNote >= 12 && bot.temp.playBackgroundMusic) bot.fun.playMIDI();
+
 			}
+
 			if (bot.client.channel.id !== bot.temp.desiredChannel) {
+
 				bot.client.setChannel(bot.temp.desiredChannel);
 				log.add(`${modulePrefix} [${bot.temp.instance}] In '${bot.client.channel.id}', attempting to move to '${bot.temp.desiredChannel}'`);
+
 			}
+
 		}
+
 	}, 1000);
 
 	bot.temp.secondaryInt = setInterval(() => {
+
 		if (bot.client.channel.crown) {
 			if (!Object.keys(userDB.data).includes(bot.client.channel.crown.userId) || !userDB.data[bot.client.channel.crown.userId].in) bot.fun.findChannel();
 		}
+
 	}, 10000);
 
 	const conv = key => {
@@ -206,19 +279,27 @@ const newInstance = (channel, server) => {
 	}
 
 	bot.temp.midiplayer = new midiPlayer.Player();
+
 	bot.temp.midiplayer.on('midiEvent', async event => {
+
 		for (let i = 0; i < bot.temp.midiEcho + 1; i++) {
+
 			if (event.channel === 10) return;
+
 			if (event.name === 'Set Tempo') {
 				bot.temp.midiplayer.setTempo(event.data);
 			}
+
 			if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
 				bot.client.stopNote(conv(event.noteName));
 			} else if (event.name === 'Note on') {
 				bot.client.startNote(conv(event.noteName), 1); //event.velocity / 100);
 			}
+
 			// await timer(10);
+
 		}
+
 	});
 
 	bot.temp.midiplayer.on('endOfFile', () => {
@@ -228,7 +309,9 @@ const newInstance = (channel, server) => {
 	bot.fun.suffixOf=(f) => {let n=f%10,r=f%100;return 1==n&&11!=r?f+'st':2==n&&12!=r?f+'nd':3==n&&13!=r?f+'rd':f+'th'};
 	bot.fun.getTimestamp=(e) => {let t=e||new Date;return`${t.getHours()%12||12}:${t.getMinutes()} ${t.getHours()>=12?'PM':'AM'} on the ${bot.fun.suffixOf(t.getDate())} of ${months[t.getMonth()-1]} ${t.getYear()+1900} (UTC+${t.getTimezoneOffset()/60})`};
 	bot.fun.rando=(r) => {return Array.isArray(r)||(r=Array.from(arguments)),r[Math.floor(Math.random()*r.length)]}; // from Fishing
+
 	bot.fun.reset = () => {
+
 		bot.temp.playingMIDI = false;
 		bot.temp.secondsSinceLastMIDI = 0;
 		bot.temp.secondsSinceLastNote = 0;
@@ -236,7 +319,9 @@ const newInstance = (channel, server) => {
 		bot.temp.midiEcho = 0;
 		bot.temp.echoDelay = 10;
 		bot.temp.midiplayer.stop();
+
 	}
+
 	bot.fun.playMIDI = () => {
 		bot.fun.reset();
 		bot.temp.playingMIDI = true;
@@ -251,22 +336,32 @@ const newInstance = (channel, server) => {
 		bot.temp.midiplayer.loadFile('./midi/' + file);
 		bot.temp.midiplayer.play();
 	}
+
 	bot.fun.findChannel = () => {
+
 		bot.client.sendArray([{'m': '+ls'}]);
+
 		let channelNames = [];
 		let channels = [];
+
 		let handler = (ls) => {
 			for (let i in ls.u) {
 				channels.push(ls.u[i]);
 				channelNames.push(ls.u[i]);
 			}
 		}
+
 		bot.client.on('ls', handler);
+
 		setTimeout(() => {
+
 			bot.client.sendArray([{'m': '-ls'}]);
 			bot.client.off('ls', handler);
+
 			let eligibleChannels = [];
+
 			for (let i = 0; i < channels.length; i++) {
+
 				/* console.log(channels[i].id);
 				console.log(channels.length); */
 				if (!channels[i].settings.crownSolo && channels[i].crown && Object.keys(userDB.data).includes(channels[i].crown.userId)) {
@@ -277,15 +372,21 @@ const newInstance = (channel, server) => {
 					console.log(!takenChannels.includes(channels[i].id)); */
 					if (userDB.data[channels[i].crown.userId].in && channels[i].crown.userId !== bot.client.getOwnParticipant()._id && channels[i].id !== bot.temp.desiredChannel && !takenChannels.includes(channels[i].id)) eligibleChannels.push(channels[i].id);
 				}
+
 			}
+
 			console.log(eligibleChannels);
 			console.log(takenChannels);
+
 			if (takenChannels.includes(bot.temp.desiredChannel)) takenChannels.splice(takenChannels.indexOf(bot.temp.desiredChannel), takenChannels.indexOf(bot.temp.desiredChannel));
 			if (eligibleChannels.length > 0 && bot.temp.desiredChannel !== 'test/background') bot.temp.desiredChannel = bot.fun.rando(eligibleChannels); if (!takenChannels.includes(bot.temp.desiredChannel)) takenChannels.push(bot.temp.desiredChannel);
+
 		}, 6000);
+
 	}
 	
 }
+
 const timer = ms => new Promise(res => setTimeout(res, ms));
 
 async function join () {
