@@ -31,6 +31,8 @@
 	For more information, please refer to <https://unlicense.org>
 */
 
+// Define dependencies:
+
 const fs = require('fs');
 const config = require('./config.json');
 const mppClient = require('./mppClient.js');
@@ -39,8 +41,12 @@ const editJsonFile = require ('edit-json-file');
 
 console.log(`App running.`);
 
+// Load database:
+
 const userDB = editJsonFile('userdb.json');
 userDB.save();
+
+// Define temp settings & variables:
 
 const months = [
 	'January',
@@ -59,12 +65,14 @@ const months = [
 const MPPKeys = ['a-1', 'as-1', 'b-1', 'c0', 'cs0', 'd0', 'ds0', 'e0', 'f0', 'fs0', 'g0', 'gs0', 'a0', 'as0', 'b0', 'c1', 'cs1', 'd1', 'ds1', 'e1', 'f1', 'fs1', 'g1', 'gs1', 'a1', 'as1', 'b1', 'c2', 'cs2', 'd2', 'ds2', 'e2', 'f2', 'fs2', 'g2', 'gs2', 'a2', 'as2', 'b2', 'c3', 'cs3', 'd3', 'ds3', 'e3', 'f3', 'fs3', 'g3', 'gs3', 'a3', 'as3', 'b3', 'c4', 'cs4', 'd4', 'ds4', 'e4', 'f4', 'fs4', 'g4', 'gs4', 'a4', 'as4', 'b4', 'c5', 'cs5', 'd5', 'ds5', 'e5', 'f5', 'fs5', 'g5', 'gs5', 'a5', 'as5', 'b5', 'c6', 'cs6', 'd6', 'ds6', 'e6', 'f6', 'fs6', 'g6', 'gs6', 'a6', 'as6', 'b6', 'c7'];
 const convKeys = ['A0', 'Bb0', 'B0', 'C1', 'Db1', 'D1', 'Eb1', 'E1', 'F1', 'Gb1', 'G1', 'Ab1', 'A1', 'Bb1', 'B1', 'C2', 'Db2', 'D2', 'Eb2', 'E2', 'F2', 'Gb2', 'G2', 'Ab2', 'A2', 'Bb2', 'B2', 'C3', 'Db3', 'D3', 'Eb3', 'E3', 'F3', 'Gb3', 'G3', 'Ab3', 'A3', 'Bb3', 'B3', 'C4', 'Db4', 'D4', 'Eb4', 'E4', 'F4', 'Gb4', 'G4', 'Ab4', 'A4', 'Bb4', 'B4', 'C5', 'Db5', 'D5', 'Eb5', 'E5', 'F5', 'Gb5', 'G5', 'Ab5', 'A5', 'Bb5', 'B5', 'C6', 'Db6', 'D6', 'Eb6', 'E6', 'F6', 'Gb6', 'G6', 'Ab6', 'A6', 'Bb6', 'B6', 'C7', 'Db7', 'D7', 'Eb7', 'E7', 'F7', 'Gb7', 'G7', 'Ab7', 'A7', 'Bb7', 'B7', 'C8'];
 
-takenChannels = [];
-instanceCounter = 0;
+let takenChannels = [];
+let instanceCounter = 0;
 
 const newInstance = (channel, server) => {
 
-	instanceCounter++;
+	instanceCounter ++;
+
+	// Define instance info:
 
 	let bot = {
 		client: new mppClient(server),
@@ -78,7 +86,7 @@ const newInstance = (channel, server) => {
 			}
 		},
 		fun: {}, // functions
-		temp: {
+		temp: { // any temporary information we store
 			instance: instanceCounter,
 			desiredChannel: channel,
 			echoDelay: 40,
@@ -94,106 +102,112 @@ const newInstance = (channel, server) => {
 				yIncrement: 0.01,
 				xIncrement: 0.01
 			}
-		} // any temporary information we store
+		}
 	}
 
 	let sendChat = bot.chat.send;
 
+	// Start instance client:
+
 	bot.client.start();
+
+	// Listen for 'hi' message from server on connect:
 
 	bot.client.on('hi', () => {
 
-		if (!bot.temp.connectedOnce) {
+		// Have we already received the 'hi' message?
 
-			bot.temp.connectedOnce = true;
+		if (!bot.temp.connectedOnce) return; // Yes, stop here & don't initialize again.
 
-			console.log(`[${bot.temp.instance}] ${bot.fun.getTimestamp()}`);
-			console.log(`[${bot.temp.instance}] Connected to MPP server @ ${server}`);
-			console.log(`[${bot.temp.instance}] Starting in channel: ${bot.temp.desiredChannel}`);
+		// No, continue to initialize this instance:
 
-			bot.client.setChannel(bot.temp.desiredChannel);
+		bot.temp.connectedOnce = true;
 
-			// bot.client.sendArray([{ m: 'userset', set: { name: 'Background Music', color: '#8a91ff' }}]);
+		console.log(`[${bot.temp.instance}] ${bot.fun.getTimestamp()}`);
+		console.log(`[${bot.temp.instance}] Connected to MPP server @ ${server}`);
+		console.log(`[${bot.temp.instance}] Starting in channel: ${bot.temp.desiredChannel}`);
 
-			bot.temp.chatBufferInt = setInterval(() => {
-				if (bot.temp.chatBuffer) bot.client.sendArray([{m:'a', message: bot.temp.chatBuffer.shift() }]);
-			}, 3000);
+		// Set the channel for this instance:
 
-			bot.temp.cursorAnimInfo.xyControl = setInterval(() => {
+		bot.client.setChannel(bot.temp.desiredChannel);
 
-				if (bot.temp.doCursorAnimation) {
-					bot.temp.cursorAnimInfo.left ? bot.temp.cursorAnimInfo.x -= bot.temp.cursorAnimInfo.xIncrement : bot.temp.cursorAnimInfo.x += bot.temp.cursorAnimInfo.xIncrement;
-					if (bot.temp.cursorAnimInfo.x > 99) bot.temp.cursorAnimInfo.left = true;
-					if (bot.temp.cursorAnimInfo.x < 0) bot.temp.cursorAnimInfo.left = false;
-					bot.temp.cursorAnimInfo.down ? bot.temp.cursorAnimInfo.y -= bot.temp.cursorAnimInfo.yIncrement : bot.temp.cursorAnimInfo.y += bot.temp.cursorAnimInfo.yIncrement;
-					if (bot.temp.cursorAnimInfo.y > 99) bot.temp.cursorAnimInfo.down = true;
-					if (bot.temp.cursorAnimInfo.y < 0) bot.temp.cursorAnimInfo.down = false;
+		// bot.client.sendArray([{ m: 'userset', set: { name: 'Background Music', color: '#8a91ff' }}]);
+
+		// Define an interval for advancing the chat buffer:
+
+		bot.temp.chatBufferInt = setInterval(() => {
+			if (bot.temp.chatBuffer) bot.client.sendArray([{m:'a', message: bot.temp.chatBuffer.shift() }]);
+		}, 3000);
+
+		// Define an interval for advancing cursor x, y coords:
+
+		bot.temp.cursorAnimInfo.xyControl = setInterval(() => {
+
+			if (bot.temp.doCursorAnimation) {
+				bot.temp.cursorAnimInfo.left ? bot.temp.cursorAnimInfo.x -= bot.temp.cursorAnimInfo.xIncrement : bot.temp.cursorAnimInfo.x += bot.temp.cursorAnimInfo.xIncrement;
+				if (bot.temp.cursorAnimInfo.x > 99) bot.temp.cursorAnimInfo.left = true;
+				if (bot.temp.cursorAnimInfo.x < 0) bot.temp.cursorAnimInfo.left = false;
+				bot.temp.cursorAnimInfo.down ? bot.temp.cursorAnimInfo.y -= bot.temp.cursorAnimInfo.yIncrement : bot.temp.cursorAnimInfo.y += bot.temp.cursorAnimInfo.yIncrement;
+				if (bot.temp.cursorAnimInfo.y > 99) bot.temp.cursorAnimInfo.down = true;
+				if (bot.temp.cursorAnimInfo.y < 0) bot.temp.cursorAnimInfo.down = false;
+			}
+
+		}, 50);
+
+		// Define an interval for randomly changing cursor direction:
+
+		bot.temp.cursorAnimInfo.randomControl = setInterval(() => {
+
+			bot.temp.cursorAnimInfo.yIncrement = 0.6;
+			bot.temp.cursorAnimInfo.xIncrement = 0.6;
+				
+			setTimeout(() => {
+				bot.temp.cursorAnimInfo.yIncrement = 0.1;
+				bot.temp.cursorAnimInfo.xIncrement = 0.1;
+			}, 600);
+
+			if (Math.random() > 0.7) bot.temp.cursorAnimInfo.left = !bot.temp.cursorAnimInfo.left;
+			if (Math.random() > 0.7) bot.temp.cursorAnimInfo.down = !bot.temp.cursorAnimInfo.down;
+				
+		}, 5000);
+
+		// Define an interval for sending our new cursor position:
+
+		bot.temp.cursorAnimInfo.sendControl = setInterval(() => {
+			if (bot.temp.doCursorAnimation) bot.client.sendArray([{m: 'm', x: bot.temp.cursorAnimInfo.x, y:  bot.temp.cursorAnimInfo.y}]);
+		}, 50);
+
+		// Listen for notes from other users:
+
+		bot.client.on('n', msg => {
+
+			if (msg.p.id !== bot.client.getOwnParticipant().id) {
+
+				bot.temp.secondsSinceLastNote = 0;
+
+				if (bot.temp.playingMIDI) {
+
+					bot.temp.midiInterruptionCount ++;
+
+					if (bot.temp.midiInterruptionCount > 10) bot.fun.reset();
+
 				}
 
-			}, 50);
+			}
 
-			bot.temp.cursorAnimInfo.randomControl = setInterval(() => {
+		});
 
-				bot.temp.cursorAnimInfo.yIncrement = 0.6;
-				bot.temp.cursorAnimInfo.xIncrement = 0.6;
-				
-				setTimeout(() => {
-					bot.temp.cursorAnimInfo.yIncrement = 0.1;
-					bot.temp.cursorAnimInfo.xIncrement = 0.1;
-				}, 600);
+		// Listen for users joining the channel:
 
-				if (Math.random() > 0.7) bot.temp.cursorAnimInfo.left = !bot.temp.cursorAnimInfo.left;
-				if (Math.random() > 0.7) bot.temp.cursorAnimInfo.down = !bot.temp.cursorAnimInfo.down;
-				
-			}, 5000);
+		bot.client.on('participant added', msg => {
 
-			bot.temp.cursorAnimInfo.sendControl = setInterval(() => {
-				if (bot.temp.doCursorAnimation) bot.client.sendArray([{m: 'm', x: bot.temp.cursorAnimInfo.x, y:  bot.temp.cursorAnimInfo.y}]);
-			}, 50);
+			if (bot.client.channel.id === 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
 
-			bot.client.on('n', msg => {
-
-				if (msg.p.id !== bot.client.getOwnParticipant().id) {
-
-					bot.temp.secondsSinceLastNote = 0;
-
-					if (bot.temp.playingMIDI) {
-
-						bot.temp.midiInterruptionCount ++;
-
-						if (bot.temp.midiInterruptionCount > 10) bot.fun.reset();
-
-					}
-
-				}
-
-			});
-
-			bot.client.on('participant added', msg => {
-
-				if (bot.client.channel.id === 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
-
-					sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
+				sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
 					
-					if (!Object.keys(userDB.data).includes(msg.id)) {
+				if (!Object.keys(userDB.data).includes(msg.id)) {
 
-						userDB.set(msg.id, {
-							'in': false
-						});
-
-						userDB.save();
-
-					}
-
-				}
-
-			});
-
-			bot.client.on('a', msg => {
-
-				if (!Object.keys(userDB.data).includes(msg.p._id) && msg.p._id !== bot.client.getOwnParticipant()._id) {
-
-					userDB.set(msg.p._id, {
+					userDB.set(msg.id, {
 						'in': false
 					});
 
@@ -201,45 +215,63 @@ const newInstance = (channel, server) => {
 
 				}
 
-				if (msg.a.toLowerCase() === '/opt-in') {
+			}
 
-					if (!userDB.data[msg.p._id].in) {
+		});
 
-						userDB.data[msg.p._id].in = true;
-						userDB.save();
-						sendChat('You\'ve opted in to background music in your channels. I\'ll visit you next time you hold the crown in a channel. See you around!');
+		// Listen for chat messages:
 
-					} else {
+		bot.client.on('a', msg => {
 
-						sendChat('You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.');
+			if (!Object.keys(userDB.data).includes(msg.p._id) && msg.p._id !== bot.client.getOwnParticipant()._id) {
 
-					}
+				userDB.set(msg.p._id, {
+					'in': false
+				});
+
+				userDB.save();
+
+			}
+
+			if (msg.a.toLowerCase() === '/opt-in') {
+
+				if (!userDB.data[msg.p._id].in) {
+
+					userDB.data[msg.p._id].in = true;
+					userDB.save();
+					sendChat('You\'ve opted in to background music in your channels. I\'ll visit you next time you hold the crown in a channel. See you around!');
+
+				} else {
+
+					sendChat('You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.');
 
 				}
 
-				if (msg.a.toLowerCase() === '/opt-out') {
+			}
 
-					if (userDB.data[msg.p._id].in) {
+			if (msg.a.toLowerCase() === '/opt-out') {
 
-						userDB.data[msg.p._id].in = false;
-						userDB.save();
-						sendChat('You\'ve opted out of background music in your channels. Thanks for trying it out!');
+				if (userDB.data[msg.p._id].in) {
 
-					} else {
+					userDB.data[msg.p._id].in = false;
+					userDB.save();
+					sendChat('You\'ve opted out of background music in your channels. Thanks for trying it out!');
 
-						sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.');
+				} else {
 
-					}
+					sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.');
 
 				}
 
-				if (msg.a.toLowerCase() === '/test') bot.fun.findChannel();
+			}
 
-			});
+			if (msg.a.toLowerCase() === '/test') bot.fun.findChannel();
 
-		}
+		});
 
 	});
+
+	// Define an interval for updating current channel to desiredChannel:
 
 	bot.temp.mainInt = setInterval(() => {
 
@@ -262,6 +294,8 @@ const newInstance = (channel, server) => {
 		}
 
 	}, 1000);
+
+	// Define an interval for regularly checking for eligible channels: (channels with users who have opted in)
 
 	bot.temp.secondaryInt = setInterval(() => {
 
