@@ -1,7 +1,7 @@
 /*
 	"Background Music for Multiplayer Piano"
-	localizationParser.js - For parsing translations.
-	2022.11.07
+	localizationParser.js - For parsing translations. Unused function included for archival purposes.
+	2022.11.07 - 2024.12.31
 
 	Callum Fisher <cf.fisher.bham@gmail.com>
 
@@ -31,28 +31,27 @@
 	For more information, please refer to <https://unlicense.org>
 */
 
-// Dependencies ++
-const log = require('./log.js');
+// Fetch dependencies:
+
 const config = require('./config.json');
 const lzt = require('./lzt.json');
 const fs = require('fs');
-// Dependencies --
 
-const modulePrefix = '[LOCALIZATION_PARSER]';
+console.log('Localization parser running.');
 
-log.add(`${modulePrefix} Running.`);
+// Define export of string fetch function:
 
 module.exports = {
 	parse: string_id => {
 		return new Promise((resolve, reject) => {
-			fs.exists(`./localizations/${config.default_localization}.json`, function(exists) {
+			fs.exists(`./localizations/${config.default_localization}.json`, exists => {
 				if (exists) {
-					var localization = require(`./localizations/${config.default_localization}.json`);
-					var output = localization.txt[string_id];
+					let localization = require(`./localizations/${config.default_localization}.json`);
+					let output = localization.txt[string_id];
 					if (output) {
 						Object.keys(lzt).forEach(tag => {
 							output = output.replace(RegExp(tag, 'g'), config[lzt[tag]]);
-						})
+						});
 					}
 					resolve(output || '');
 				} else {

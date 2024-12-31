@@ -1,7 +1,7 @@
 /*
 	"Background Music for Multiplayer Piano"
-	log.js - For logging sessions.
-	2022.11.07
+	log.js - For logging sessions. Unused function including for archival purposes.
+	2022.11.07 - 2024.12.31
 
 	Callum Fisher <cf.fisher.bham@gmail.com>
 
@@ -31,13 +31,15 @@
 	For more information, please refer to <https://unlicense.org>
 */
 
-// Dependencies ++
+// Fetch dependencies:
+
 const fs = require('fs');
-// Dependencies --
 
-const module_prefix = '[SESSIONLOGGER]';
+// Announce start up:
 
-console.log(`${module_prefix} Running.`);
+console.log('Session Logger running.');
+
+// Define export of log function:
 
 module.exports = {
 	initializationdate: new Date(),
@@ -48,19 +50,29 @@ module.exports = {
 	}
 }
 
-// Manage finishing up logging:
-var writing = false;
+// Handle finishing up logging:
+
+let writing = false;
 
 const exitHandler = (options, err) => {
-	if (!writing) { // sometimes both of these exit events are fired, so this stops the following code from being triggered twice
-		writing = true;
-		module.exports.sessionlog += `\n!! PROCESS EXITING !!`;
-		fs.writeFileSync(`./logs/${module.exports.initializationdate.getFullYear()}-${module.exports.initializationdate.getMonth()+1} Day ${module.exports.initializationdate.getDate()} ${module.exports.initializationdate.getHours()}-${module.exports.initializationdate.getMinutes()}-${module.exports.initializationdate.getSeconds()}.txt`, module.exports.sessionlog);
-		console.log(`${module_prefix} !! LOG FILE WRITTEN !! GOODBYE !!`);
-		process.exit();
-	}
+
+	if (writing) return; // sometimes both of these exit events are fired, so this stops the following code from being triggered twice
+
+	writing = true;
+
+	module.exports.sessionlog += `\n!! PROCESS EXITING !!`;
+	
+	fs.writeFileSync(`./logs/${module.exports.initializationdate.getFullYear()}-${module.exports.initializationdate.getMonth()+1} Day ${module.exports.initializationdate.getDate()} ${module.exports.initializationdate.getHours()}-${module.exports.initializationdate.getMinutes()}-${module.exports.initializationdate.getSeconds()}.txt`, module.exports.sessionlog);
+	
+	console.log(`${module_prefix} !! LOG FILE WRITTEN !! GOODBYE !!`);
+	process.exit();
+
 }
 
+process.on('exit', exitHandler.bind(null, {
+	cleanup: true
+}));
 
-//process.on('exit', exitHandler.bind(null,{cleanup:true}))
-//process.on('SIGINT', exitHandler.bind(null, {exit:true}))
+process.on('SIGINT', exitHandler.bind(null, {
+	exit: true
+}));

@@ -328,7 +328,7 @@ const newInstance = (channel, server) => {
 			if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
 				bot.client.stopNote(conv(event.noteName));
 			} else if (event.name === 'Note on') {
-				bot.client.startNote(conv(event.noteName), 1); //event.velocity / 100);
+				bot.client.startNote(conv(event.noteName), 1); // event.velocity / 100);
 			}
 
 			// await timer(10);
@@ -341,9 +341,9 @@ const newInstance = (channel, server) => {
 		bot.fun.reset();
 	});
 
-	bot.fun.suffixOf=(f) => {let n=f%10,r=f%100;return 1==n&&11!=r?f+'st':2==n&&12!=r?f+'nd':3==n&&13!=r?f+'rd':f+'th'};
-	bot.fun.getTimestamp=(e) => {let t=e||new Date;return`${t.getHours()%12||12}:${t.getMinutes()} ${t.getHours()>=12?'PM':'AM'} on the ${bot.fun.suffixOf(t.getDate())} of ${months[t.getMonth()-1]} ${t.getYear()+1900} (UTC+${t.getTimezoneOffset()/60})`};
-	bot.fun.rando=(r) => {return Array.isArray(r)||(r=Array.from(arguments)),r[Math.floor(Math.random()*r.length)]}; // from Fishing
+	bot.fun.suffixOf = f => {let n=f%10,r=f%100;return 1==n&&11!=r?f+'st':2==n&&12!=r?f+'nd':3==n&&13!=r?f+'rd':f+'th'};
+	bot.fun.getTimestamp= e => {let t=e||new Date;return`${t.getHours()%12||12}:${t.getMinutes()} ${t.getHours()>=12?'PM':'AM'} on the ${bot.fun.suffixOf(t.getDate())} of ${months[t.getMonth()-1]} ${t.getYear()+1900} (UTC+${t.getTimezoneOffset()/60})`};
+	bot.fun.rando = array => {return array[Math.floor(Math.random()*array.length)]};
 
 	bot.fun.reset = () => {
 

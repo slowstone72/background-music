@@ -31,15 +31,12 @@
 	For more information, please refer to <https://unlicense.org>
 */
 
-// Dependencies ++
-const log = require('./log.js');
+// Fetch dependencies:
+
 const editjsonfile = require('edit-json-file');
 const fs = require('fs');
-// Dependencies --
 
-const modulePrefix = '[LAUNCHER]';
-
-log.add(`${modulePrefix} Running.`);
+console.log('Launcher running.');
 
 
 // Define defaults ++
@@ -65,7 +62,6 @@ const valid_keys = { // this is a list of keys and their values which should be 
 	}
 }
 const valid_dirs = [
-	'logs',
 	'midi'
 ];
 // Define defaults --
@@ -85,10 +81,10 @@ valid_dirs.forEach(dir => { // Check the directories which are in the valid dire
 		if (!exists) {
 			fs.mkdir(`./${dir}`, function(err) {
 				if (err) {
-					log.add(`${modulePrefix} ERROR: Failed to create directory '${dir}'!`, err);
+					console.log(`ERROR: Failed to create directory '${dir}'!`, err);
 					process.exit()
 				} else {
-					log.add(`${modulePrefix} Created directory: '${dir}'`);
+					console.log(`Created directory: '${dir}'`);
 				}
 			});
 		}
@@ -97,43 +93,43 @@ valid_dirs.forEach(dir => { // Check the directories which are in the valid dire
 // Manage directories --
 
 // Manage lzt.json ++
-/*log.add(`${modulePrefix} -----------------------------------------`)
-log.add(`${modulePrefix} > Checking localization tags file integrity...`)
-log.add(`${modulePrefix} -----------------------------------------`)
+/*console.log(`-----------------------------------------`)
+console.log(`> Checking localization tags file integrity...`)
+console.log(`-----------------------------------------`)
 const lzt = editjsonfile('./lzt.json') // load localization_tags.json
 lzt_change_made = false
 Object.keys(valid_tags).forEach(tag => { // Check the tags currently in the localization tags file for missing tags and add those missing tags:
 	if (!Object.keys(lzt.data).includes(tag)) {
 		lzt_change_made = true
-		log.add(`${modulePrefix} [lzt.json] > Adding missing tag '${tag}' with value: ${JSON.stringify(valid_tags[tag])}`)
+		console.log(`[lzt.json] > Adding missing tag '${tag}' with value: ${JSON.stringify(valid_tags[tag])}`)
 		lzt.set(tag, valid_tags[tag])
 	}
 })
 Object.keys(lzt.data).forEach(tag => { // Check the tags currently in the localization tags file for unknown tags and remove those unknown tags:
 	if (!Object.keys(valid_tags).includes(tag)) {
 		lzt_change_made = true
-		log.add(`${modulePrefix} [lzt.json] > Removing unknown tag '${tag}'`)
+		console.log(`[lzt.json] > Removing unknown tag '${tag}'`)
 		delete lzt.data[tag]
 	}
 })
-log.add(`${modulePrefix} [lzt.json] >> Using the following options:`)
+console.log(`[lzt.json] >> Using the following options:`)
 Object.keys(lzt.data).forEach(tag => { // Print out the key values being used:
-		log.add(`${modulePrefix} [lzt.json] - ${tag}: ${JSON.stringify(lzt.data[tag])}`)
+		console.log(`[lzt.json] - ${tag}: ${JSON.stringify(lzt.data[tag])}`)
 })
-log.add(`${modulePrefix} -----------------------------------------`)
+console.log(`-----------------------------------------`)
 if (lzt_change_made) { // If changes have been made to the localization tags file, record those changes: (there's no need to rewrite the file if no changes have been made)
-	log.add(`${modulePrefix} > Localization tags file check completed. Recording changes now.`)
+	console.log(`> Localization tags file check completed. Recording changes now.`)
 	lzt.save()
 } else {
-	log.add(`${modulePrefix} > Localization tags file integrity check completed. All is well - continuing.`)
+	console.log(`> Localization tags file integrity check completed. All is well - continuing.`)
 }
-log.add(`${modulePrefix} -----------------------------------------`) */
+console.log(`-----------------------------------------`) */
 // Manage lzt.json --
 
 // Manage config.json ++
-log.add(`${modulePrefix} -----------------------------------------`);
-log.add(`${modulePrefix} > Checking configuration file integrity...`);
-log.add(`${modulePrefix} -----------------------------------------`);
+console.log(`-----------------------------------------`);
+console.log(`> Checking configuration file integrity...`);
+console.log(`-----------------------------------------`);
 const config = editjsonfile('./config.json'); // load config.json
 configChangeMade = false;
 if (config.data.firstTimeRun === undefined) { // If the First Time Run key doesn't exist, then it's most likely the first time this program has been executed. Alternatively, it's may be that this program's saved data has been reset.
@@ -146,31 +142,31 @@ if (config.data.firstTimeRun === undefined) { // If the First Time Run key doesn
 Object.keys(valid_keys).forEach(key => { // Check the keys currently in the configuration file for missing keys and add those missing keys:
 	if (!Object.keys(config.data).includes(key)) {
 		configChangeMade = true;
-		log.add(`${modulePrefix} [config.json] > Adding missing key '${key}' with value: ${JSON.stringify(valid_keys[key])}`);
+		console.log(`[config.json] > Adding missing key '${key}' with value: ${JSON.stringify(valid_keys[key])}`);
 		config.set(key, valid_keys[key]);
 	}
 });
 Object.keys(config.data).forEach(key => { // Check the keys currently in the configuration file for unknown keys and remove those unknown keys:
 	if (!Object.keys(valid_keys).includes(key)) {
 		configChangeMade = true;
-		log.add(`${modulePrefix} [config.json] > Removing unknown key '${key}'`);
+		console.log(`[config.json] > Removing unknown key '${key}'`);
 		delete config.data[key];
 	}
 });
 if (config.data.detailedLogging) {
-	log.add(`${modulePrefix} [config.json] >> Using the following options:`)
+	console.log(`[config.json] >> Using the following options:`)
 	Object.keys(config.data).forEach(key => { // Print out the key values being used:
-			log.add(`${modulePrefix} [config.json] - ${key}: ${JSON.stringify(config.data[key])}`);
+			console.log(`[config.json] - ${key}: ${JSON.stringify(config.data[key])}`);
 	});
 }
-log.add(`${modulePrefix} -----------------------------------------`);
+console.log(`-----------------------------------------`);
 if (configChangeMade) { // If changes have been made to the configuration file, record those changes: (there's no need to rewrite the file if no changes have been made)
-	log.add(`${modulePrefix} > Configuration file integrity check completed. Recording changes now.`);
+	console.log(`> Configuration file integrity check completed. Recording changes now.`);
 	config.save();
 } else {
-	log.add(`${modulePrefix} > Configuration file integrity check completed. All is well - continuing.`);
+	console.log(`> Configuration file integrity check completed. All is well - continuing.`);
 }
-log.add(`${modulePrefix} -----------------------------------------`);
+console.log(`-----------------------------------------`);
 // Manage config.json --
 
 
@@ -179,23 +175,23 @@ log.add(`${modulePrefix} -----------------------------------------`);
 // Manage localizations file ++
 /*fs.exists(`./localizations/${config.data.defaultLocalization}.json`, function(exists) { // check for localization file presence:
 	if (!exists) {
-		log.add(`${modulePrefix} !! SELECTED LOCALIZATION FILE NOT FOUND !! Program will use default messages.`) // print a warning if the default localization file isn't found
+		console.log(`!! SELECTED LOCALIZATION FILE NOT FOUND !! Program will use default messages.`) // print a warning if the default localization file isn't found
 	} else {
-		log.add(`${modulePrefix} Default localization file was found. Program output switching to localization file text.`)
+		console.log(`Default localization file was found. Program output switching to localization file text.`)
 	}
 })
 const localization = require(`./localizations/${config.data.defaultLocalization}.json`) || {} // <---- Load the localization file or a blank json object if the localization file isn't present.
 const lzp = require('./localizationParser.js')											  	   // Note that the localization file is only loaded in this way here because we're fetching separate metadata from it directly.
 if (config.data.detailedLoggingOutput) { // if detailed logging is enabled:					   // The localization parser module is for all other text, and so loads the localization file separately just for that purpose.
 	lzp.parse('lzinfo').then(function(data) { // parse the 'lzinfo' text in the localization file.
-		log.add(`${modulePrefix} ${data || 'localization file info:'}`) // Print the output. Different localization files will have different values for the 'lzinfo' property, so that's the base of the framework for separate language localizations.
-		log.add(`${modulePrefix} - ${localization.md.authors || 'n/a'}`) // Print the authors list from the 'md' (metadata) property of the localization file.
-		log.add(`${modulePrefix} - ${localization.md.name || 'n/a'}`) // Print the localization name (E.G English, French..) from the 'md' (metadata) property of the localization file.
-		log.add(`${modulePrefix} - ${localization.md.date || 'n/a'}`) // Print the date of the localization file from the 'md' (metadata) property of the localization file.
+		console.log(`${data || 'localization file info:'}`) // Print the output. Different localization files will have different values for the 'lzinfo' property, so that's the base of the framework for separate language localizations.
+		console.log(`- ${localization.md.authors || 'n/a'}`) // Print the authors list from the 'md' (metadata) property of the localization file.
+		console.log(`- ${localization.md.name || 'n/a'}`) // Print the localization name (E.G English, French..) from the 'md' (metadata) property of the localization file.
+		console.log(`- ${localization.md.date || 'n/a'}`) // Print the date of the localization file from the 'md' (metadata) property of the localization file.
 	}) 																// Note: this is the only time data should be pulled directly from a localization file, all other text (in the 'txt' property) is handled through the localization parser module.
 }
 lzp.parse('welcome').then(function(data) {
-	log.add(`${modulePrefix} ${data || 'Done'}`)
+	console.log(`${data || 'Done'}`)
 })
 */
 // Manage localizations file --
@@ -207,5 +203,5 @@ lzp.parse('welcome').then(function(data) {
 if (config.get('configReady')) {
 	require('./app.js');
 } else {
-	log.add(`${modulePrefix} !!! Review the configuration in config.json and change configReady to 'true' !!!`);
+	console.log('!!! Review the configuration in config.json and change configReady to \'true\' !!!');
 }
