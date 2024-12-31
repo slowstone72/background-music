@@ -31,7 +31,7 @@
 	For more information, please refer to <https://unlicense.org>
 */
 
-// Define dependencies:
+// Fetch dependencies:
 
 const fs = require('fs');
 const config = require('./config.json');
