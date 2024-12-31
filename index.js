@@ -153,7 +153,7 @@ Object.keys(valid_keys).forEach(key => { // Check the keys currently in the conf
 Object.keys(config.data).forEach(key => { // Check the keys currently in the configuration file for unknown keys and remove those unknown keys:
 	if (!Object.keys(valid_keys).includes(key)) {
 		configChangeMade = true;
-		log.add(`${modulePrefix} [config.json] > Removing unknown key '${key}'`)
+		log.add(`${modulePrefix} [config.json] > Removing unknown key '${key}'`);
 		delete config.data[key];
 	}
 });

@@ -182,7 +182,7 @@ function newInstance (channel, server) {
 						userDB.save();
 						sendChat('You\'ve opted out of background music in your channels. Thanks for trying it out!');
 					} else {
-						sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.')
+						sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.');
 					}
 				}
 				if (msg.a.toLowerCase() === '/test') {
@@ -263,7 +263,7 @@ function newInstance (channel, server) {
 	}
 	bot.fun.findChannel = () => {
 		bot.client.sendArray([{'m': '+ls'}]);
-		var channelNames = []
+		var channelNames = [];
 		var channels = [];
 		var handler = (ls) => {
 			for (var i in ls.u) {
