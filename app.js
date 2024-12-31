@@ -317,16 +317,26 @@ const newInstance = (channel, server) => {
 
 	bot.temp.midiplayer.on('midiEvent', async event => {
 
+		// Ignore drums on channel 10:
+
 		if (event.channel === 10) return;
 
-		if (event.name === 'Set Tempo') {
-			bot.temp.midiplayer.setTempo(event.data);
-		}
+		// Check event type:
 
-		if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
-			bot.client.stopNote(conv(event.noteName));
-		} else if (event.name === 'Note on') {
-			bot.client.startNote(conv(event.noteName), 1); // event.velocity / 100);
+		switch (event.name) {
+			case 'Note on':
+				if (event.velocity === 0) {
+					bot.client.stopNote(conv(event.noteName));
+				} else {
+					bot.client.startNote(conv(event.noteName), 1);
+				}
+				break;
+			case 'Note off':
+				bot.client.stopNote(conv(event.noteName));
+				break;
+			case 'Set Tempo':
+				bot.temp.midiplayer.setTempo(event.data);
+				break;
 		}
 
 	});
