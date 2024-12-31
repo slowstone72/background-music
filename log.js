@@ -1,6 +1,6 @@
 /*
 	"Background Music for Multiplayer Piano"
-	log.js - For logging sessions. Unused function including for archival purposes.
+	log.js - For logging sessions. Unused function included for archival purposes.
 	2022.11.07 - 2024.12.31
 
 	Callum Fisher <cf.fisher.bham@gmail.com>
