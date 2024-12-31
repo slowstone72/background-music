@@ -49,7 +49,6 @@ const valid_keys = { // this is a list of keys and their values which should be 
 	'firstTimeRun': true, // Whether or not this program is being run for the first time. This shouldn't be edited manually, unless some kind of tutorial mode is required again, or something similar.
 	'detailedLogging': false, // Whether or not this program will record detailed information in its logging output. This shouldn't be edited manually unless troubleshooting is required.
 	'configReady': false, // If you NEED the user to modify the configuration file before the program can work properly, you can set the default value of this key to false.
-	'cmdPrefix': '?',
 	'recordChatLogs': true,
 	'doCursorAnimation': true,
 	'servers': {
