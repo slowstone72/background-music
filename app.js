@@ -32,15 +32,12 @@
 */
 
 const fs = require('fs');
-const log = require('./log.js');
 const config = require('./config.json');
 const mppClient = require('./mppClient.js');
 const midiPlayer = require('midi-player-js');
 const editJsonFile = require ('edit-json-file');
 
-const modulePrefix = '[APP]';
-
-log.add(`${modulePrefix} Running.`);
+console.log(`App running.`);
 
 const userDB = editJsonFile('userdb.json');
 userDB.save();
@@ -110,9 +107,9 @@ const newInstance = (channel, server) => {
 
 			bot.temp.connectedOnce = true;
 
-			log.add(`${modulePrefix} [${bot.temp.instance}] ${bot.fun.getTimestamp()}`);
-			log.add(`${modulePrefix} [${bot.temp.instance}] Connected to MPP server @ ${server}`);
-			log.add(`${modulePrefix} [${bot.temp.instance}] Starting in channel: ${bot.temp.desiredChannel}`);
+			console.log(`[${bot.temp.instance}] ${bot.fun.getTimestamp()}`);
+			console.log(`[${bot.temp.instance}] Connected to MPP server @ ${server}`);
+			console.log(`[${bot.temp.instance}] Starting in channel: ${bot.temp.desiredChannel}`);
 
 			bot.client.setChannel(bot.temp.desiredChannel);
 
@@ -258,7 +255,7 @@ const newInstance = (channel, server) => {
 			if (bot.client.channel.id !== bot.temp.desiredChannel) {
 
 				bot.client.setChannel(bot.temp.desiredChannel);
-				log.add(`${modulePrefix} [${bot.temp.instance}] In '${bot.client.channel.id}', attempting to move to '${bot.temp.desiredChannel}'`);
+				console.log(`[${bot.temp.instance}] In '${bot.client.channel.id}', attempting to move to '${bot.temp.desiredChannel}'`);
 
 			}
 
@@ -332,7 +329,7 @@ const newInstance = (channel, server) => {
 			}
 		});
 		let file = files[Math.floor(Math.random() * files.length)];
-		log.add(`${modulePrefix} ${bot.temp.instance} ${bot.client.channel.id}: playing: '${file}'`);
+		console.log(`${bot.temp.instance} ${bot.client.channel.id}: playing: '${file}'`);
 		bot.temp.midiplayer.loadFile('./midi/' + file);
 		bot.temp.midiplayer.play();
 	}
