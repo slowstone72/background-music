@@ -39,7 +39,7 @@ const mppClient = require('./mppClient.js');
 const midiPlayer = require('midi-player-js');
 const editJsonFile = require ('edit-json-file');
 
-console.log(`App running.`);
+console.log('App running.');
 
 // Load database:
 
@@ -143,18 +143,23 @@ const newInstance = (channel, server) => {
 
 		bot.temp.cursorAnimInfo.xyControl = setInterval(() => {
 
-			if (bot.temp.doCursorAnimation) {
-				bot.temp.cursorAnimInfo.left ? bot.temp.cursorAnimInfo.x -= bot.temp.cursorAnimInfo.xIncrement : bot.temp.cursorAnimInfo.x += bot.temp.cursorAnimInfo.xIncrement;
-				if (bot.temp.cursorAnimInfo.x > 99) bot.temp.cursorAnimInfo.left = true;
-				if (bot.temp.cursorAnimInfo.x < 0) bot.temp.cursorAnimInfo.left = false;
-				bot.temp.cursorAnimInfo.down ? bot.temp.cursorAnimInfo.y -= bot.temp.cursorAnimInfo.yIncrement : bot.temp.cursorAnimInfo.y += bot.temp.cursorAnimInfo.yIncrement;
-				if (bot.temp.cursorAnimInfo.y > 99) bot.temp.cursorAnimInfo.down = true;
-				if (bot.temp.cursorAnimInfo.y < 0) bot.temp.cursorAnimInfo.down = false;
-			}
+			if (!bot.temp.doCursorAnimation) return;
+
+			bot.temp.cursorAnimInfo.left ? bot.temp.cursorAnimInfo.x -= bot.temp.cursorAnimInfo.xIncrement : bot.temp.cursorAnimInfo.x += bot.temp.cursorAnimInfo.xIncrement;
+			if (bot.temp.cursorAnimInfo.x > 99) bot.temp.cursorAnimInfo.left = true;
+			if (bot.temp.cursorAnimInfo.x < 0) bot.temp.cursorAnimInfo.left = false;
+
+			bot.temp.cursorAnimInfo.down ? bot.temp.cursorAnimInfo.y -= bot.temp.cursorAnimInfo.yIncrement : bot.temp.cursorAnimInfo.y += bot.temp.cursorAnimInfo.yIncrement;
+			if (bot.temp.cursorAnimInfo.y > 99) bot.temp.cursorAnimInfo.down = true;
+			if (bot.temp.cursorAnimInfo.y < 0) bot.temp.cursorAnimInfo.down = false;
+
+			// Send our new cursor position:
+
+			bot.client.sendArray([{m: 'm', x: bot.temp.cursorAnimInfo.x, y:  bot.temp.cursorAnimInfo.y}]);
 
 		}, 50);
 
-		// Define an interval for randomly changing cursor direction:
+		// Define an interval for randomly changing cursor direction & boosting:
 
 		bot.temp.cursorAnimInfo.randomControl = setInterval(() => {
 
@@ -171,27 +176,19 @@ const newInstance = (channel, server) => {
 				
 		}, 5000);
 
-		// Define an interval for sending our new cursor position:
-
-		bot.temp.cursorAnimInfo.sendControl = setInterval(() => {
-			if (bot.temp.doCursorAnimation) bot.client.sendArray([{m: 'm', x: bot.temp.cursorAnimInfo.x, y:  bot.temp.cursorAnimInfo.y}]);
-		}, 50);
-
 		// Listen for notes from other users:
 
 		bot.client.on('n', msg => {
 
-			if (msg.p.id !== bot.client.getOwnParticipant().id) {
+			if (msg.p.id === bot.client.getOwnParticipant().id) return;
 
-				bot.temp.secondsSinceLastNote = 0;
+			bot.temp.secondsSinceLastNote = 0;
 
-				if (bot.temp.playingMIDI) {
+			if (bot.temp.playingMIDI) {
 
-					bot.temp.midiInterruptionCount ++;
+				bot.temp.midiInterruptionCount ++;
 
-					if (bot.temp.midiInterruptionCount > 10) bot.fun.reset();
-
-				}
+				if (bot.temp.midiInterruptionCount > 10) bot.fun.reset();
 
 			}
 
@@ -201,19 +198,17 @@ const newInstance = (channel, server) => {
 
 		bot.client.on('participant added', msg => {
 
-			if (bot.client.channel.id === 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
+			if (bot.client.channel.id !== 'test/background' || msg.id === bot.client.getOwnParticipant()._id) return;
 
-				sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
+			sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
 					
-				if (!Object.keys(userDB.data).includes(msg.id)) {
+			if (!Object.keys(userDB.data).includes(msg.id)) {
 
-					userDB.set(msg.id, {
-						'in': false
-					});
+				userDB.set(msg.id, {
+					'in': false
+				});
 
-					userDB.save();
-
-				}
+				userDB.save();
 
 			}
 
@@ -223,49 +218,50 @@ const newInstance = (channel, server) => {
 
 		bot.client.on('a', msg => {
 
-			if (!Object.keys(userDB.data).includes(msg.p._id) && msg.p._id !== bot.client.getOwnParticipant()._id) {
+			if (msg.p._id === bot.client.getOwnParticipant()._id) return;
+
+			if (!Object.keys(userDB.data).includes(msg.p._id)) {
 
 				userDB.set(msg.p._id, {
 					'in': false
 				});
 
 				userDB.save();
-
+		
 			}
 
-			if (msg.a.toLowerCase() === '/opt-in') {
+			switch (msg.a.toLowerCase()) {
 
-				if (!userDB.data[msg.p._id].in) {
+				case '/opt-in':
+					if (!userDB.data[msg.p._id].in) {
 
-					userDB.data[msg.p._id].in = true;
-					userDB.save();
-					sendChat('You\'ve opted in to background music in your channels. I\'ll visit you next time you hold the crown in a channel. See you around!');
+						userDB.data[msg.p._id].in = true;
+						userDB.save();
+						sendChat('You\'ve opted in to background music in your channels. I\'ll visit you next time you hold the crown in a channel. See you around!');
 
-				} else {
+					} else {
 
-					sendChat('You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.');
+						sendChat('You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.');
 
-				}
+					}
+					break;
+
+				case '/opt-out':
+					if (userDB.data[msg.p._id].in) {
+
+						userDB.data[msg.p._id].in = false;
+						userDB.save();
+						
+						sendChat('You\'ve opted out of background music in your channels. Thanks for trying it out!');
+	
+					} else {
+	
+						sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.');
+	
+					}
+					break;
 
 			}
-
-			if (msg.a.toLowerCase() === '/opt-out') {
-
-				if (userDB.data[msg.p._id].in) {
-
-					userDB.data[msg.p._id].in = false;
-					userDB.save();
-					sendChat('You\'ve opted out of background music in your channels. Thanks for trying it out!');
-
-				} else {
-
-					sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.');
-
-				}
-
-			}
-
-			if (msg.a.toLowerCase() === '/test') bot.fun.findChannel();
 
 		});
 
@@ -375,7 +371,7 @@ const newInstance = (channel, server) => {
 		let channelNames = [];
 		let channels = [];
 
-		let handler = (ls) => {
+		let handler = ls => {
 			for (let i in ls.u) {
 				channels.push(ls.u[i]);
 				channelNames.push(ls.u[i]);
