@@ -198,6 +198,8 @@ const newInstance = (channel, server) => {
 
 		bot.client.on('participant added', msg => {
 
+			// If this user is ourself, OR IF this instance is is not the "test/background" channel, do not continue:
+
 			if (bot.client.channel.id !== 'test/background' || msg.id === bot.client.getOwnParticipant()._id) return;
 
 			sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
@@ -229,6 +231,12 @@ const newInstance = (channel, server) => {
 				userDB.save();
 		
 			}
+
+			// Is this instance in the "test/background" channel where users can opt in/out?
+
+			if (bot.client.channel._id !== 'test/background') return; // No, do not continue.
+
+			// Yes, look for chat commands:
 
 			switch (msg.a.toLowerCase()) {
 
