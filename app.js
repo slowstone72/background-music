@@ -45,16 +45,6 @@ log.add(`${modulePrefix} Running.`);
 const userDB = editJsonFile('userdb.json');
 userDB.save();
 
-const days = [
-	'Sunday',
-	'Monday',
-	'Tuesday',
-	'Wednesday',
-	'Thursday',
-	'Friday',
-	'Saturday'
-];
-
 const months = [
 	'January',
 	'February',
