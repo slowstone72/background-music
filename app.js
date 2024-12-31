@@ -1,6 +1,6 @@
 /*
-	'Background Music for Multiplayer Piano'
-	app.js - Main program
+	"Background Music for Multiplayer Piano"
+	app.js - Main program.
 	2022.11.07
 
 	Callum Fisher <cf.fisher.bham@gmail.com>
@@ -82,7 +82,7 @@ function newInstance (channel, server) {
 		chat: {
 			send: function(msg) {
 				msg.match(/.{0,511}/g).forEach(function(x, i) {
-					if (x == '') return;
+					if (x === '') return;
 					if (i !== 0) x = '' + x;
 					bot.temp.chatBuffer.push('\u034f'+x);
 				})
@@ -160,14 +160,14 @@ function newInstance (channel, server) {
 				} 
 			});
 			bot.client.on('participant added', (msg) => {
-				if (bot.client.channel.id == 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
+				if (bot.client.channel.id === 'test/background' && msg.id !== bot.client.getOwnParticipant()._id) {
 					sendChat(`Hello${Object.keys(userDB.data).includes(msg.id) ? ' again' : ''}, ${msg.name}. ${Object.keys(userDB.data).includes(msg.id) && userDB.data[msg.id].in ? 'You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.' : 'Opt in to background music for your channels. Send /opt-in to chat.'}`);
 					if (!Object.keys(userDB.data).includes(msg.id)) userDB.set(msg.id, {'in': false}); userDB.save();
 				}
 			});
 			bot.client.on('a', (msg) => {
 				if (!Object.keys(userDB.data).includes(msg.p._id) && msg.p._id !== bot.client.getOwnParticipant()._id) userDB.set(msg.p._id, {'in': false}); userDB.save();
-				if (msg.a.toLowerCase() == '/opt-in') {
+				if (msg.a.toLowerCase() === '/opt-in') {
 					if (!userDB.data[msg.p._id].in) {
 						userDB.data[msg.p._id].in = true;
 						userDB.save();
@@ -176,7 +176,7 @@ function newInstance (channel, server) {
 						sendChat('You\'ve already opted in to background music in your channels. Send /opt-out to chat to opt out.');
 					}
 				}
-				if (msg.a.toLowerCase() == '/opt-out') {
+				if (msg.a.toLowerCase() === '/opt-out') {
 					if (userDB.data[msg.p._id].in) {
 						userDB.data[msg.p._id].in = false;
 						userDB.save();
@@ -185,7 +185,7 @@ function newInstance (channel, server) {
 						sendChat('You haven\'t opted in to background music in your channels yet. Send /opt-in to chat to opt in.')
 					}
 				}
-				if (msg.a.toLowerCase() == '/test') {
+				if (msg.a.toLowerCase() === '/test') {
 					bot.fun.findChannel();
 				}
 			});
@@ -218,13 +218,13 @@ function newInstance (channel, server) {
 	bot.temp.midiplayer = new midiPlayer.Player();
 	bot.temp.midiplayer.on('midiEvent', async (event) => {
 		for (var i = 0; i < bot.temp.midiEcho + 1; i++) {
-			if (event.channel == 10) return;
-			if (event.name == 'Set Tempo') {
+			if (event.channel === 10) return;
+			if (event.name === 'Set Tempo') {
 				bot.temp.midiplayer.setTempo(event.data);
 			}
-			if (event.name == 'Note off' || (event.name == 'Note on' && event.velocity === 0)) {
+			if (event.name === 'Note off' || (event.name === 'Note on' && event.velocity === 0)) {
 				bot.client.stopNote(conv(event.noteName));
-			} else if (event.name == 'Note on') {
+			} else if (event.name === 'Note on') {
 				bot.client.startNote(conv(event.noteName), 1); //event.velocity / 100);
 			}
 			// await timer(10);

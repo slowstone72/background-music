@@ -1,5 +1,5 @@
 /*
-	'Background Music for Multiplayer Piano'
+	"Background Music for Multiplayer Piano"
 	localizationParser.js - For parsing translations.
 	2022.11.07
 

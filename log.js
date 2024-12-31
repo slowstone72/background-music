@@ -1,6 +1,6 @@
 /*
-	'Background Music for Multiplayer Piano'
-	log.js - For logging sessions
+	"Background Music for Multiplayer Piano"
+	log.js - For logging sessions.
 	2022.11.07
 
 	Callum Fisher <cf.fisher.bham@gmail.com>

@@ -1,5 +1,5 @@
 /*
-	'Background Music for Multiplayer Piano'
+	"Background Music for Multiplayer Piano"
 	index.js - Launcher for handling config.json & launching app.js
 	2022.11.07
 
@@ -136,7 +136,7 @@ log.add(`${modulePrefix} > Checking configuration file integrity...`);
 log.add(`${modulePrefix} -----------------------------------------`);
 const config = editjsonfile('./config.json'); // load config.json
 configChangeMade = false;
-if (config.data.firstTimeRun == undefined) { // If the First Time Run key doesn't exist, then it's most likely the first time this program has been executed. Alternatively, it's may be that this program's saved data has been reset.
+if (config.data.firstTimeRun === undefined) { // If the First Time Run key doesn't exist, then it's most likely the first time this program has been executed. Alternatively, it's may be that this program's saved data has been reset.
 	configChangeMade = true;
 	config.set('firstTimeRun', true);
 } else if (config.data.firstTimeRun) {
