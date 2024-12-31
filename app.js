@@ -1,7 +1,7 @@
 /*
 	"Background Music for Multiplayer Piano"
 	app.js - Main program.
-	2022.11.07
+	2022.11.07 - 2024.12.31
 
 	Callum Fisher <cf.fisher.bham@gmail.com>
 
@@ -65,17 +65,17 @@ const convKeys = ['A0', 'Bb0', 'B0', 'C1', 'Db1', 'D1', 'Eb1', 'E1', 'F1', 'Gb1'
 takenChannels = [];
 instanceCounter = 0;
 
-function newInstance (channel, server) {
+const newInstance = (channel, server) => {
 	instanceCounter++;
-	var bot = {
+	let bot = {
 		client: new mppClient(server),
 		chat: {
 			send: msg => {
-				msg.match(/.{0,511}/g).forEach(function(x, i) {
+				msg.match(/.{0,511}/g).forEach((x, i) => {
 					if (x === '') return;
 					if (i !== 0) x = '' + x;
 					bot.temp.chatBuffer.push('\u034f'+x);
-				})
+				});
 			}
 		},
 		fun: {}, // functions
@@ -98,7 +98,7 @@ function newInstance (channel, server) {
 		} // any temporary information we store
 	}
 
-	var sendChat = bot.chat.send;
+	let sendChat = bot.chat.send;
 
 	bot.client.start();
 
@@ -206,8 +206,8 @@ function newInstance (channel, server) {
 	}
 
 	bot.temp.midiplayer = new midiPlayer.Player();
-	bot.temp.midiplayer.on('midiEvent', async (event) => {
-		for (var i = 0; i < bot.temp.midiEcho + 1; i++) {
+	bot.temp.midiplayer.on('midiEvent', async event => {
+		for (let i = 0; i < bot.temp.midiEcho + 1; i++) {
 			if (event.channel === 10) return;
 			if (event.name === 'Set Tempo') {
 				bot.temp.midiplayer.setTempo(event.data);
@@ -225,8 +225,8 @@ function newInstance (channel, server) {
 		bot.fun.reset();
 	});
 
-	bot.fun.suffixOf=(f) => {var n=f%10,r=f%100;return 1==n&&11!=r?f+'st':2==n&&12!=r?f+'nd':3==n&&13!=r?f+'rd':f+'th'};
-	bot.fun.getTimestamp=(e) => {var t=e||new Date;return`${t.getHours()%12||12}:${t.getMinutes()} ${t.getHours()>=12?'PM':'AM'} on the ${bot.fun.suffixOf(t.getDate())} of ${months[t.getMonth()-1]} ${t.getYear()+1900} (UTC+${t.getTimezoneOffset()/60})`};
+	bot.fun.suffixOf=(f) => {let n=f%10,r=f%100;return 1==n&&11!=r?f+'st':2==n&&12!=r?f+'nd':3==n&&13!=r?f+'rd':f+'th'};
+	bot.fun.getTimestamp=(e) => {let t=e||new Date;return`${t.getHours()%12||12}:${t.getMinutes()} ${t.getHours()>=12?'PM':'AM'} on the ${bot.fun.suffixOf(t.getDate())} of ${months[t.getMonth()-1]} ${t.getYear()+1900} (UTC+${t.getTimezoneOffset()/60})`};
 	bot.fun.rando=(r) => {return Array.isArray(r)||(r=Array.from(arguments)),r[Math.floor(Math.random()*r.length)]}; // from Fishing
 	bot.fun.reset = () => {
 		bot.temp.playingMIDI = false;
@@ -240,23 +240,23 @@ function newInstance (channel, server) {
 	bot.fun.playMIDI = () => {
 		bot.fun.reset();
 		bot.temp.playingMIDI = true;
-		var files = [];
+		let files = [];
 		fs.readdirSync(__dirname + '/midi').forEach(file => {
 			if (file.toLowerCase().includes('.mid')) {
 				files.push(file);
 			}
 		});
-		var file = files[Math.floor(Math.random() * files.length)];
+		let file = files[Math.floor(Math.random() * files.length)];
 		log.add(`${modulePrefix} ${bot.temp.instance} ${bot.client.channel.id}: playing: '${file}'`);
 		bot.temp.midiplayer.loadFile('./midi/' + file);
 		bot.temp.midiplayer.play();
 	}
 	bot.fun.findChannel = () => {
 		bot.client.sendArray([{'m': '+ls'}]);
-		var channelNames = [];
-		var channels = [];
-		var handler = (ls) => {
-			for (var i in ls.u) {
+		let channelNames = [];
+		let channels = [];
+		let handler = (ls) => {
+			for (let i in ls.u) {
 				channels.push(ls.u[i]);
 				channelNames.push(ls.u[i]);
 			}
@@ -265,8 +265,8 @@ function newInstance (channel, server) {
 		setTimeout(() => {
 			bot.client.sendArray([{'m': '-ls'}]);
 			bot.client.off('ls', handler);
-			var eligibleChannels = [];
-			for (var i = 0; i < channels.length; i++) {
+			let eligibleChannels = [];
+			for (let i = 0; i < channels.length; i++) {
 				/* console.log(channels[i].id);
 				console.log(channels.length); */
 				if (!channels[i].settings.crownSolo && channels[i].crown && Object.keys(userDB.data).includes(channels[i].crown.userId)) {
@@ -289,10 +289,10 @@ function newInstance (channel, server) {
 const timer = ms => new Promise(res => setTimeout(res, ms));
 
 async function join () {
-	for (var i1 = 0; i1 < Object.keys(config.servers).length; i1++) {
-		for (var i = 0; i < config.servers[Object.keys(config.servers)[i1]].length; i++) {
-			var ch = config.servers[Object.keys(config.servers)[i1]][i];
-			var ws = Object.keys(config.servers)[i1];
+	for (let i1 = 0; i1 < Object.keys(config.servers).length; i1++) {
+		for (let i = 0; i < config.servers[Object.keys(config.servers)[i1]].length; i++) {
+			let ch = config.servers[Object.keys(config.servers)[i1]][i];
+			let ws = Object.keys(config.servers)[i1];
 			newInstance(ch, ws);
 			await timer(3000);
 		}
